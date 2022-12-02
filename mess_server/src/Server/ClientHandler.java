@@ -71,6 +71,8 @@ public class ClientHandler {
         }
     }
 
+//    public void writeBuffer()
+
     public void checkReg(String username, String password) {
         try {
             String line;

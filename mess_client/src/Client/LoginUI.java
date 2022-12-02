@@ -51,7 +51,7 @@ public class LoginUI extends JFrame implements ActionListener {
             text = "login," + userText + ',' + pwdText;
             Client.getObject().setUsername(userText);
         } else {
-            text = "register," + userText + ',' + pwdText;
+            text = "reg," + userText + ',' + pwdText;
         }
 
         try {

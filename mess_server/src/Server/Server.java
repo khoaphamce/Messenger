@@ -13,7 +13,7 @@ import java.util.HashMap;
 import java.io.IOException;  
 
 
-public class    Server {
+public class Server {
     JTextArea text = new JTextArea(100, 50);
     JScrollPane log;
     JPanel notify = new JPanel();

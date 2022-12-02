@@ -62,7 +62,7 @@ public class ChatBoardUI extends JFrame implements ActionListener {
         topPane.add(logout);
         topPane.add(Box.createRigidArea(new Dimension(0,5)));
 
-        scrollPane = ScrollPane();
+//        scrollPane = ScrollPane();
 
         JPanel panel= new JPanel();
         panel.setLayout(new BorderLayout());
@@ -77,17 +77,17 @@ public class ChatBoardUI extends JFrame implements ActionListener {
         setVisible(true);
     }
 
-    public JScrollPane ScrollPane(){
-        DefaultListModel<String> model = new DefaultListModel<>();
-        onl = Client.getObject().getOnl();
-        for(String user : onl){
-            model.addElement(user);
-        }
-        online = new JList( model );
-        online.addMouseListener(mouseListener);
-        JScrollPane s = new JScrollPane(online);
-        return s;
-    }
+//    public JScrollPane ScrollPane(){
+//        DefaultListModel<String> model = new DefaultListModel<>();
+//        onl = Client.getObject().getOnl();
+//        for(String user : onl){
+//            model.addElement(user);
+//        }
+//        online = new JList( model );
+//        online.addMouseListener(mouseListener);
+//        JScrollPane s = new JScrollPane(online);
+//        return s;
+//    }
 
     @Override
     public void actionPerformed(ActionEvent e) {
@@ -105,7 +105,7 @@ public class ChatBoardUI extends JFrame implements ActionListener {
 //        public void mouseClicked(MouseEvent e) {
 //            if (e.getClickCount() == 2) {
 //                String name = (String) online.getSelectedValue();
-//                ChatBoxUI chatbox = new ChatBoxUI(name);
+//                Chat chatbox = new Chat(name);
 //                Client.getObject().getChatBox().put(name,chatbox);
 //            }
 //        }
