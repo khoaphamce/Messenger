@@ -136,7 +136,9 @@ public class Client
 
                     while ((count=in.read(buffer))>0) {
                         out.write(buffer,0,count);
+
                     }
+
                     out.flush();
                     in.skip(in.available());
                 } catch (IOException ex){
