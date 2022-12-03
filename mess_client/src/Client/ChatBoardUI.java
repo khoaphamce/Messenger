@@ -1,5 +1,4 @@
 package Client;
-
 import javax.swing.*;
 import javax.swing.border.EmptyBorder;
 import java.awt.*;
@@ -105,7 +104,7 @@ public class ChatBoardUI extends JFrame implements ActionListener {
         public void mouseClicked(MouseEvent e) {
             if (e.getClickCount() == 2) {
                 String name = (String) online.getSelectedValue();
-                Chat chatbox = new Chat(name);
+                ChatBoxUI chatbox = new ChatBoxUI(name);
                 Client.getObject().getChatBox().put(name,chatbox);
             }
         }
