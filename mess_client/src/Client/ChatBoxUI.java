@@ -62,7 +62,7 @@ public class ChatBoxUI extends JFrame implements ActionListener {
         type.add(sendFile);
         type.add(send);
 
-        JLabel username = new JLabel("Me: "+Client.getObject().getUsername());
+        JLabel username = new JLabel("Me: " + Client.getObject().getUsername());
 
         add(username,BorderLayout.NORTH);
         add(scroll,BorderLayout.CENTER);

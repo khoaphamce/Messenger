@@ -13,7 +13,7 @@ import java.util.HashMap;
 public class Client
 {
     private static Client instance;
-    private Socket s;
+    private Socket s = null;
     private InputStream is;
     private BufferedReader br;
     private OutputStream os;
@@ -63,8 +63,16 @@ public class Client
     }
 
     public void connect() throws IOException {
-        s = new Socket("localhost",3200);
-        System.out.println(s.getPort());
+        while(s==null) {
+            try {
+                s = new Socket("localhost", 3200);
+                System.out.println(s.getPort());
+            }
+            catch(ConnectException e){
+                System.out.println("Connecting...");
+                s = null;
+            }
+        }
 
         is=s.getInputStream();
         br=new BufferedReader(new InputStreamReader(is));
@@ -79,6 +87,7 @@ public class Client
                     do {
                         receivedMessage = br.readLine();
                         res = parseString(receivedMessage);
+                        System.out.println("Message receive: "+res[0]);
                         route();
                     } while (true);
                 } catch (Exception e) {
@@ -118,12 +127,14 @@ public class Client
                 String msg=""+sender+": "+res[2]+"\n";
                 chatBoxList.get(sender).getTextArea().append(msg);
                 break;
+
             case "info":
                 String fileName = res[2];
                 String from = res[1];
                 String length = res[3];
-
                 confirm(from,fileName,length);
+                break;
+
             case "accept":
                 try{
                     DataInputStream in = new DataInputStream(new FileInputStream(sendingFile));
@@ -136,7 +147,6 @@ public class Client
 
                     while ((count=in.read(buffer))>0) {
                         out.write(buffer,0,count);
-
                     }
 
                     out.flush();
@@ -156,6 +166,21 @@ public class Client
         }
     }
 
+//    private void sendFIle(String fileName, String fileSize) throws IOExceoptions{
+//        System.out.println("Sending: " + fileName + " with size: " + fileSize);
+//        ClientHandler receive = log.getOnline().get(receiver);
+//        receive.send("send-file,"+fileName+","+fileSize);
+//
+//        try{
+//            // Input stream
+//            InputStream inpStream = new FileInputStream(fileName);
+//            DataOutputStream out = new DataOutputStream(receive.getSocket().getOutputStream());
+//        }
+//        catch(FileNotFoundException e){
+//            e.printStackTrace();
+//        }
+//
+//    }
     private void receiveFile(String fileName, String fileSize) throws IOException {
         System.out.println(fileName+fileSize);
 
@@ -208,6 +233,7 @@ public class Client
         yes.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent e) {
                 try {
+                    System.out.println("Sending accept signal");
                     send("accept,"+username+","+from+","+fileName+","+length);
                 } catch (IOException ex) {
                     ex.printStackTrace();

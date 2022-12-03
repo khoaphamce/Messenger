@@ -173,13 +173,6 @@ public class ClientHandler {
                 ClientHandler rcv = log.getOnline().get(to);
                 rcv.send("info,"+from+","+name+","+length);
                 break;
-            case "accept":
-                ClientHandler recv = log.getOnline().get(parseMess[2]);
-                recv.send("accept,"+parseMess[1]);
-                break;
-            case "send-file":
-                processFile(parseMess[1],parseMess[2],parseMess[3]);
-                break;
             case "logout":
                 log.getOnline().remove(parseMess[1]);
                 socket.close();
