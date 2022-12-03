@@ -138,6 +138,7 @@ public class Client
                         out.write(buffer,0,count);
                     }
                     out.flush();
+
                     in.skip(in.available());
                 } catch (IOException ex){
                     ex.getMessage();
@@ -155,17 +156,33 @@ public class Client
 
     private void receiveFile(String fileName, String fileSize) throws IOException {
         System.out.println(fileName+fileSize);
+
+        // Get input stream
         DataInputStream in = new DataInputStream(s.getInputStream());
+
+        // Init output stream
         FileOutputStream out = new FileOutputStream(fileName);
+
         int remain = Integer.parseInt(fileSize);
 
         byte[] buffer = new byte[4096];
+
         System.out.println("Starting to receive");
+
         while (remain>0) {
-            remain -= in.read(buffer,0,Math.min(4096,remain));
-            out.write(buffer);
+            int outBufferSize = in.read(buffer,0,Math.min(4096,remain));
+            remain -= outBufferSize;
+
+            byte[] tempBuffer = new byte[outBufferSize];
+
+            for (int i = 0; i < outBufferSize;i++)
+                tempBuffer[i] = buffer[i];
+
+            out.write(tempBuffer);
+
             System.out.println("The rest size: " + remain);
         }
+
         out.flush();
         out.close();
 
