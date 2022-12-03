@@ -147,7 +147,7 @@ public class ClientHandler {
 
     public void route(String[] parseMess) throws IOException {
         switch(parseMess[0]){
-            case "register":
+            case "reg":
                 checkReg(parseMess[1],parseMess[2]);
                 break;
             case "login":
