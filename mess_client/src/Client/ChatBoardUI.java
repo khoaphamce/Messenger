@@ -93,7 +93,6 @@ public class ChatBoardUI extends JFrame implements ActionListener {
         if (e.getSource() == refresh){
             try {
                 Client.getObject().send("refresh");
-                dispose();
             } catch (IOException ex) {
                 ex.printStackTrace();
             }

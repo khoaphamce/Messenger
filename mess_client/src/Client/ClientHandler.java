@@ -53,6 +53,8 @@ public class ClientHandler {
             }
         });
         t.start();
+
+        myClient.p2pHandlerServer = this;
     }
 
     public void route(String[] parseMess) throws IOException {
@@ -62,11 +64,20 @@ public class ClientHandler {
                 String msg = parseMess[3];
                 receiveMsg(sender, msg);
                 break;
-            case "info":
+
+            case "init-file-send":
                 String from = parseMess[1];
-                String to = parseMess[2];
-                String name = parseMess[3];
-                String length = parseMess[4];
+                String filename = parseMess[2];
+                String fileSize = parseMess[3];
+                myClient.confirm(from, filename, fileSize);
+                break;
+
+            case "accept-file":
+                myClient.startSendingFile();
+                break;
+
+            case "send-file":
+                myClient.receiveFile(parseMess[1], parseMess[2]);
                 break;
         }
     }
@@ -89,4 +100,43 @@ public class ClientHandler {
         }
         myClient.chatbox.getTextArea().append(sender + ": " + msg + "\n");
     }
+
+    public void receiveFile(String fileName, String fileSize) throws IOException {
+        System.out.println(fileName+fileSize);
+
+        // Get input stream
+        DataInputStream in = new DataInputStream(myClient.getSocket().getInputStream());
+
+        // Init output stream
+        FileOutputStream out = new FileOutputStream(fileName);
+
+        int remain = Integer.parseInt(fileSize);
+
+        byte[] buffer = new byte[4096];
+
+        System.out.println("Starting to receive");
+
+        while (remain>0) {
+            int outBufferSize = in.read(buffer,0,Math.min(4096,remain));
+            remain -= outBufferSize;
+
+            byte[] tempBuffer = new byte[outBufferSize];
+
+            for (int i = 0; i < outBufferSize;i++)
+                tempBuffer[i] = buffer[i];
+
+            out.write(tempBuffer);
+
+            System.out.println("The rest size: " + remain);
+        }
+
+        out.flush();
+        out.close();
+
+        in.skipBytes(in.available());
+
+        JOptionPane.showMessageDialog(null,"File saved!");
+    }
+
+
 }
