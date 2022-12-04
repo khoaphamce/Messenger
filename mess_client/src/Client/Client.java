@@ -77,7 +77,7 @@ public class Client
 
     // initiate p2p server
     public int initp2p(){
-        portIndex = 100;
+        portIndex = 00;
 
         while (p2pServer == null){
             try{
@@ -380,7 +380,9 @@ public class Client
         send("get-client-p2p-port,"+toConnectName+","+username);
     }
 
-    public void connectSocketp2p(int inpPort) throws IOException{
+    public void
+
+    connectSocketp2p(int inpPort) throws IOException{
         while(p2pSocket==null) {
             try {
                 p2pSocket = new Socket("localhost", inpPort);
