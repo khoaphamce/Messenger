@@ -19,6 +19,7 @@ public class Server {
     JPanel notify = new JPanel();
     BufferedWriter writer;
     BufferedReader reader;
+    String USER_FILE = "user.csv";
     HashMap<String,ClientHandler> onl = new HashMap<>();
 
     public HashMap<String, ClientHandler> getOnline() {
@@ -94,6 +95,20 @@ public class Server {
         frame.pack();
         
         frame.setVisible(true);
+
+        try {
+            FileWriter tempWriter = new FileWriter(USER_FILE, true);
+        }
+        catch(IOException e){
+            File tempFile = new File(USER_FILE);
+            if (tempFile.isFile()) {
+                try {
+                    tempFile.createNewFile();
+                }
+                catch(IOException er){
+                }
+            }
+        }
 
         connect();
     }

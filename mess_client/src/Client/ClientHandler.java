@@ -50,6 +50,12 @@ public class ClientHandler {
                     e.printStackTrace();
                     System.out.print("Socket closed");
                 }
+                try {
+                    socket.close();
+                }
+                catch(IOException err){
+
+                }
             }
         });
         t.start();

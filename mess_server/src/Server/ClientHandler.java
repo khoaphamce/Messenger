@@ -47,6 +47,7 @@ public class ClientHandler {
                         } catch (IOException e) {
                             if (reconnectTime < 50) {
                                 Thread.currentThread().wait(1);
+                                reconnectTime++;
                             }
                             else{
                                 break;
@@ -79,7 +80,8 @@ public class ClientHandler {
     public void writeAccount(String fname, String username, String password) {
         String info = username + ',' + password;
         try {
-            FileWriter fw  = new FileWriter(fname, true);
+            FileWriter fw = new FileWriter(fname, true);
+
             BufferedWriter writer = new BufferedWriter(fw);
             writer.write(info);
             writer.newLine();
