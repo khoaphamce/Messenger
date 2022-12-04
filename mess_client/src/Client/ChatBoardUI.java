@@ -19,7 +19,7 @@ public class ChatBoardUI extends JFrame implements ActionListener {
         setLayout(new BorderLayout());
         setTitle("Chat board");
 
-        setPreferredSize(new Dimension(400, 350));
+        setPreferredSize(new Dimension(500, 400));
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 
         JLabel name = new JLabel("Hi, "+ Client.getObject().getUsername());

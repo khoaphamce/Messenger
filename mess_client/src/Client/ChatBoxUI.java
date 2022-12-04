@@ -24,7 +24,7 @@ public class ChatBoxUI extends JFrame implements ActionListener {
 
         setLayout(new BorderLayout());
         setTitle(name);
-        setPreferredSize(new Dimension(350, 300));
+        setPreferredSize(new Dimension(500, 400));
 
         scroll = setScrollPane();
 

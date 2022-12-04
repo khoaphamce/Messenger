@@ -90,6 +90,7 @@ public class Client
     }
 
     public void route(){
+//        System.out.println(res[0]);
         switch(res[0]){
             case "reg":
                 JOptionPane.showMessageDialog(panel, res[1]);
@@ -214,6 +215,8 @@ public class Client
                 }
                 frame.dispose();
             }
+
+
         });
 
         no.addActionListener(new ActionListener() {

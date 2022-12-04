@@ -85,7 +85,7 @@ public class Server {
         }
     }
 
-    public Server() {
+    public  Server() {
         JFrame frame = new JFrame("Server"); // set title
         frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE); // close -> exit program
         frame.setPreferredSize(new Dimension(500, 400));
