@@ -77,10 +77,11 @@ public class Client
 
     // initiate p2p server
     public int initp2p(){
-        portIndex = 00;
+        portIndex = 100;
 
         while (p2pServer == null){
             try{
+                System.out.println("Port: " + Integer.toString(portIndex));
                 p2pServer = new ServerSocket(portIndex);
 
                 p2pServerConnect(this);
