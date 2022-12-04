@@ -5,6 +5,7 @@ import java.io.*;
 import java.net.Socket;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.Map;
 
 public class ClientHandler {
     BufferedWriter writer;
@@ -12,6 +13,7 @@ public class ClientHandler {
     Socket socket;
     Server log;
     String FILENAME = "user.csv";
+    int hostPort;
 
     public Socket getSocket(){
         return this.socket;
@@ -20,6 +22,7 @@ public class ClientHandler {
     public ClientHandler(Socket socket, Server log) throws IOException {
         this.socket = socket;
         this.log = log;
+        this.hostPort = socket.getPort();
 
         InputStream is = socket.getInputStream();
         reader = new BufferedReader(new InputStreamReader(is));
@@ -131,6 +134,11 @@ public class ClientHandler {
         }
     }
 
+    ClientHandler getClientHandler(String clientName){
+        HashMap<String, ClientHandler> onl = log.getOnline();
+        return onl.get(clientName);
+    }
+
     public String getOnl(){
         String res = "";
         HashMap<String, ClientHandler> onl = log.getOnline();
@@ -145,6 +153,17 @@ public class ClientHandler {
         return res;
     }
 
+    public void getClientPort(String clientName, String destinationName){
+        try {
+            ClientHandler targetHandler = getClientHandler(clientName);
+            System.out.println("Getting client handler of " + clientName);
+            targetHandler.send("get-p2p-server-port," + destinationName);
+        }
+        catch(IOException e){
+            System.out.println("Can not get port of " + clientName);
+        }
+    }
+
     public void route(String[] parseMess) throws IOException {
         switch(parseMess[0]){
             case "reg":
@@ -157,26 +176,19 @@ public class ClientHandler {
                 String onlList = getOnl();
                 send("refresh,"+onlList);
                 break;
-            case "chat":
-                String sender = parseMess[1];
-                String receiver = parseMess[2];
-                String msg = parseMess[3];
-                ClientHandler receive = log.getOnline().get(receiver);
-                receive.send("chat,"+sender+","+msg);
-                break;
-            case "info":
-                String from = parseMess[1];
-                String to = parseMess[2];
-                String name = parseMess[3];
-                String length = parseMess[4];
-
-                ClientHandler rcv = log.getOnline().get(to);
-                rcv.send("info,"+from+","+name+","+length);
-                break;
             case "logout":
                 log.getOnline().remove(parseMess[1]);
                 socket.close();
                 break;
+            case "get-client-p2p-port":
+                getClientPort(parseMess[1], parseMess[2]);
+                break;
+            case "return-p2p-server-port":
+                ClientHandler targetClientHandler = getClientHandler(parseMess[2]);
+                targetClientHandler.send("return-client-port," + parseMess[1]);
+                break;
+
+
         }
     }
 

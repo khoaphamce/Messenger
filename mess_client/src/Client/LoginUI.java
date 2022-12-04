@@ -19,6 +19,7 @@ public class LoginUI extends JFrame implements ActionListener {
     public LoginUI() {
         try {
             Client.getObject().connect();
+            Client.getObject().initp2p();
         } catch (IOException e) {
             e.printStackTrace();
         }

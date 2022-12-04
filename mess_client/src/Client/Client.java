@@ -14,6 +14,14 @@ public class Client
 {
     private static Client instance;
     private Socket s = null;
+    private ServerSocket p2pServer = null;
+    private Socket p2pSocket = null;
+    private InputStream p2pis;
+    private BufferedReader p2pbr;
+    private BufferedWriter p2pbw;
+    private OutputStream p2pos;
+    private ClientHandler p2pHandlerServer = null;
+    private static int portIndex = 0;
     private InputStream is;
     private BufferedReader br;
     private OutputStream os;
@@ -27,41 +35,10 @@ public class Client
     HashMap<String, ChatBoxUI> chatBoxList = new HashMap<>();
     ChatBoxUI chatbox;
 
-    private Client() {
+    public Client() {
     }
 
-    public Socket getSocket(){
-        return this.s;
-    }
-
-    public void setSendingFile(File sendingFile){
-        this.sendingFile = sendingFile;
-    }
-
-    public BufferedWriter getOut(){
-        return this.bw;
-    }
-
-    public HashMap<String, ChatBoxUI> getChatBox(){
-        return this.chatBoxList;
-    }
-
-    public String[] parseString(String csvStr) {
-        String[] res = null;
-        if (csvStr != null) {
-            res = csvStr.split(",");
-        }
-        return res;
-    }
-
-    public String[] parseOnl(String csvStr) {
-        String[] res = null;
-        if (csvStr != null) {
-            res = csvStr.split("`");
-        }
-        return res;
-    }
-
+    // connect to host server
     public void connect() throws IOException {
         while(s==null) {
             try {
@@ -96,6 +73,79 @@ public class Client
             }
         });
         t.start();
+    }
+
+    // initiate p2p server
+    public int initp2p(){
+        portIndex = 100;
+
+        while (p2pServer == null){
+            try{
+                p2pServer = new ServerSocket(portIndex);
+
+                p2pServerConnect();
+            }
+            catch(IOException e){
+                p2pServer = null;
+                portIndex++;
+                if (portIndex > 65353)
+                    portIndex = 0;
+            }
+        }
+        portIndex = p2pServer.getLocalPort();
+        System.out.println("Setup a p2p listening to: " + Integer.toString(p2pServer.getLocalPort()));
+        return portIndex;
+    }
+
+    public Socket getSocket(){
+        return this.s;
+    }
+
+    public void setSendingFile(File sendingFile){
+        this.sendingFile = sendingFile;
+    }
+
+    public BufferedWriter getOut(){
+        return this.bw;
+    }
+
+    public HashMap<String, ChatBoxUI> getChatBox(){
+        return this.chatBoxList;
+    }
+
+    public String[] parseString(String csvStr) {
+        String[] res = null;
+        if (csvStr != null) {
+            res = csvStr.split(",");
+        }
+        return res;
+    }
+
+    public String[] parseOnl(String csvStr) {
+        String[] res = null;
+        if (csvStr != null) {
+            res = csvStr.split("`");
+        }
+        return res;
+    }
+
+    public void p2pServerConnect(){
+        Thread t = new Thread(new Runnable() {
+            @Override
+            public void run() {
+                try {
+                    Socket serverSocket = p2pServer.accept(); //synchronous
+                    System.out.println("A new client is coming!\n");
+                    Thread thread = new Thread(new CreateClient(serverSocket, p2pSocket));
+                    thread.start();
+                }
+                catch(IOException e){
+                    System.out.println("Can not see client");
+                }
+            }
+        });
+        t.start();
+
     }
 
     public void route(){
@@ -156,6 +206,7 @@ public class Client
                     ex.getMessage();
                 }
                 break;
+
             case "send-file":
                 try {
                     receiveFile(res[1],res[2]);
@@ -163,24 +214,25 @@ public class Client
                     e.printStackTrace();
                 }
                 break;
+            case "get-p2p-server-port":
+                try {
+                    send("return-p2p-server-port," + Integer.toString(p2pServer.getLocalPort()) + "," + res[1]);
+                }
+                catch (IOException e) {
+                }
+                break;
+            case "return-client-port":
+                String returnedPort = res[1];
+                System.out.println("Returned port: " + returnedPort);
+                try {
+                    connectSocketp2p(Integer.parseInt(returnedPort));
+                } catch (IOException e) {
+                    System.out.println("Error connecting p2p with port " + returnedPort);
+                }
+                break;
         }
     }
 
-//    private void sendFIle(String fileName, String fileSize) throws IOExceoptions{
-//        System.out.println("Sending: " + fileName + " with size: " + fileSize);
-//        ClientHandler receive = log.getOnline().get(receiver);
-//        receive.send("send-file,"+fileName+","+fileSize);
-//
-//        try{
-//            // Input stream
-//            InputStream inpStream = new FileInputStream(fileName);
-//            DataOutputStream out = new DataOutputStream(receive.getSocket().getOutputStream());
-//        }
-//        catch(FileNotFoundException e){
-//            e.printStackTrace();
-//        }
-//
-//    }
     private void receiveFile(String fileName, String fileSize) throws IOException {
         System.out.println(fileName+fileSize);
 
@@ -285,6 +337,12 @@ public class Client
         bw.flush();
     }
 
+    public void sendp2p(String sentMessage) throws IOException{
+        p2pbw.write(sentMessage);
+        p2pbw.newLine();
+        p2pbw.flush();
+    }
+
     public ArrayList<String> getOnl(){
         String onlList[]=parseOnl(onl);
         ArrayList<String> res = new ArrayList<>();
@@ -296,5 +354,64 @@ public class Client
 
     public void setUsername(String username) {
         this.username = username;
+    }
+
+    private class CreateClient implements Runnable{
+        Socket clientSocket;
+        Socket mySocket;
+        Client myClient;
+
+        public CreateClient(Socket clientSocket, Socket mySocket) {
+            this.clientSocket = clientSocket;
+            this.mySocket = mySocket;
+        }
+
+        // @Override
+        public void run() {
+            try {
+                new ClientHandler(this.mySocket, this.mySocket);
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
+    }
+
+    public void connectTo(String toConnectName) throws IOException{
+        send("get-client-p2p-port,"+toConnectName+","+username);
+    }
+
+    public void connectSocketp2p(int inpPort) throws IOException{
+        while(p2pSocket==null) {
+            try {
+                p2pSocket = new Socket("localhost", inpPort);
+                System.out.println("Connected p2pSocket with p2pServer at port: " + Integer.toString(inpPort));
+            }
+            catch(ConnectException e){
+                p2pSocket = null;
+            }
+        }
+
+        p2pis = p2pSocket.getInputStream();
+        p2pbr = new BufferedReader(new InputStreamReader(p2pis));
+
+        p2pos = p2pSocket.getOutputStream();
+        p2pbw = new BufferedWriter(new OutputStreamWriter(p2pos));
+
+        Thread t = new Thread(new Runnable() {
+            @Override
+            public void run() {
+                try {
+                    do {
+                        receivedMessage = br.readLine();
+                        res = parseString(receivedMessage);
+                        System.out.println("Message receive: "+res[0]);
+                        route();
+                    } while (true);
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
+            }
+        });
+        t.start();
     }
 }

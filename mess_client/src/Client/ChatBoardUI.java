@@ -105,6 +105,14 @@ public class ChatBoardUI extends JFrame implements ActionListener {
             if (e.getClickCount() == 2) {
                 String name = (String) online.getSelectedValue();
                 ChatBoxUI chatbox = new ChatBoxUI(name);
+
+                try {
+                    Client.getObject().connectTo(name);
+                }
+                catch (IOException ex){
+                    System.out.println("Can not find port lol");
+                }
+
                 Client.getObject().getChatBox().put(name,chatbox);
             }
         }

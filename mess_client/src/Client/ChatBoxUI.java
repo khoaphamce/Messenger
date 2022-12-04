@@ -95,7 +95,7 @@ public class ChatBoxUI extends JFrame implements ActionListener {
                 String msg = text.getText();
                 Client.getObject().getChatBox().put(name,this);
                 chat.append(username+": "+msg+"\n");
-                Client.getObject().send("chat,"+username+","+name+","+msg);
+                Client.getObject().sendp2p("chat,"+username+","+name+","+msg);
                 text.setText("");
             } catch (IOException ex) {
                 ex.printStackTrace();

@@ -72,9 +72,7 @@ public class Server {
 
             } while (true);
         } catch (IOException e) {
-
             text.append("No user found\n");
-
         } finally {
             try {
                 writer.close();
