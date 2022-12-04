@@ -13,15 +13,17 @@ public class ClientHandler {
     BufferedReader mySocketreader;
 
     Socket socket;
-    Socket mySocket;
+    Client myClient;
 
     public Socket getSocket(){
         return this.socket;
     }
 
-    public ClientHandler(Socket socket, Socket mySocket) throws IOException {
+    public ClientHandler(Socket socket, Client myClient) throws IOException {
         this.socket = socket;
-        this.mySocket = mySocket;
+        this.myClient = myClient;
+
+        System.out.println("Client name in clienthandler: " + myClient.getUsername());
 
         InputStream is = socket.getInputStream();
         reader = new BufferedReader(new InputStreamReader(is));
@@ -57,7 +59,7 @@ public class ClientHandler {
         switch(parseMess[0]){
             case "chat":
                 String sender = parseMess[1];
-                String msg = parseMess[2];
+                String msg = parseMess[3];
                 receiveMsg(sender, msg);
                 break;
             case "info":
@@ -66,7 +68,6 @@ public class ClientHandler {
                 String name = parseMess[3];
                 String length = parseMess[4];
                 break;
-
         }
     }
 
@@ -76,13 +77,16 @@ public class ClientHandler {
         writer.flush();
     }
 
-    public void sendMySocket(String sentMessage) throws IOException {
-        mySocketWriter.write(sentMessage);
-        mySocketWriter.newLine();
-        mySocketWriter.flush();
-    }
+//    public void sendMySocket(String sentMessage) throws IOException {
+//        mySocketWriter.write(sentMessage);
+//        mySocketWriter.newLine();
+//        mySocketWriter.flush();
+//    }
 
     public void receiveMsg(String sender, String msg) throws IOException{
-        sendMySocket("chat," + sender + "," + msg);
+        if(myClient.chatbox == null){
+            myClient.chatbox = new ChatBoxUI(myClient.getUsername());
+        }
+        myClient.chatbox.getTextArea().append(sender + ": " + msg + "\n");
     }
 }

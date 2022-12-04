@@ -33,7 +33,7 @@ public class Client
     private String username;
     File sendingFile = new File("");
     HashMap<String, ChatBoxUI> chatBoxList = new HashMap<>();
-    ChatBoxUI chatbox;
+    public static ChatBoxUI chatbox;
 
     public Client() {
     }
@@ -83,7 +83,7 @@ public class Client
             try{
                 p2pServer = new ServerSocket(portIndex);
 
-                p2pServerConnect();
+                p2pServerConnect(this);
             }
             catch(IOException e){
                 p2pServer = null;
@@ -129,14 +129,14 @@ public class Client
         return res;
     }
 
-    public void p2pServerConnect(){
+    public void p2pServerConnect(Client myClient){
         Thread t = new Thread(new Runnable() {
             @Override
             public void run() {
                 try {
                     Socket serverSocket = p2pServer.accept(); //synchronous
                     System.out.println("A new client is coming!\n");
-                    Thread thread = new Thread(new CreateClient(serverSocket, p2pSocket));
+                    Thread thread = new Thread(new CreateClient(serverSocket, myClient));
                     thread.start();
                 }
                 catch(IOException e){
@@ -358,18 +358,17 @@ public class Client
 
     private class CreateClient implements Runnable{
         Socket clientSocket;
-        Socket mySocket;
         Client myClient;
 
-        public CreateClient(Socket clientSocket, Socket mySocket) {
+        public CreateClient(Socket clientSocket, Client myClient) {
             this.clientSocket = clientSocket;
-            this.mySocket = mySocket;
+            this.myClient = myClient;
         }
 
         // @Override
         public void run() {
             try {
-                new ClientHandler(this.mySocket, this.mySocket);
+                new ClientHandler(this.clientSocket, this.myClient);
             } catch (IOException e) {
                 e.printStackTrace();
             }

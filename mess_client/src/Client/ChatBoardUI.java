@@ -105,6 +105,7 @@ public class ChatBoardUI extends JFrame implements ActionListener {
             if (e.getClickCount() == 2) {
                 String name = (String) online.getSelectedValue();
                 ChatBoxUI chatbox = new ChatBoxUI(name);
+                Client.getObject().chatbox = chatbox;
 
                 try {
                     Client.getObject().connectTo(name);
