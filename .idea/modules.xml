@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="ProjectModuleManager">
+    <modules>
+      <module fileurl="file://$PROJECT_DIR$/.idea/Messenger.iml" filepath="$PROJECT_DIR$/.idea/Messenger.iml" />
+      <module fileurl="file://$PROJECT_DIR$/mess_client/mess_client.iml" filepath="$PROJECT_DIR$/mess_client/mess_client.iml" />
+      <module fileurl="file://$PROJECT_DIR$/mess_server/mess_server.iml" filepath="$PROJECT_DIR$/mess_server/mess_server.iml" />
+    </modules>
+  </component>
+</project>
