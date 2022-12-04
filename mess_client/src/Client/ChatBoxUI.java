@@ -49,7 +49,7 @@ public class ChatBoxUI extends JFrame implements ActionListener {
                     Client.getObject().setSendingFile(file);
 
                     String username = Client.getObject().getUsername();
-                    Client.getObject().send("info,"+username+","+name+","+fileName+","+file.length());
+                    Client.getObject().sendp2p("init-file-send,"+username +","+fileName+","+file.length());
                 } catch (Exception ex){
                     ex.getMessage();
                 }

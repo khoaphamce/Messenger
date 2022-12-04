@@ -10,8 +10,11 @@ import java.net.*;
 import java.util.ArrayList;
 import java.util.HashMap;
 
+
 public class Client
 {
+    long BUFFER_SIZE = 4096;
+    int BUFFER_SIZE_INT = 4096;
     private static Client instance;
     private Socket s = null;
     private ServerSocket p2pServer = null;
@@ -20,7 +23,7 @@ public class Client
     private BufferedReader p2pbr;
     private BufferedWriter p2pbw;
     private OutputStream p2pos;
-    private ClientHandler p2pHandlerServer = null;
+    public ClientHandler p2pHandlerServer = null;
     private static int portIndex = 0;
     private InputStream is;
     private BufferedReader br;
@@ -34,6 +37,7 @@ public class Client
     File sendingFile = new File("");
     HashMap<String, ChatBoxUI> chatBoxList = new HashMap<>();
     public static ChatBoxUI chatbox;
+    public static ChatBoardUI chatboard;
 
     public Client() {
     }
@@ -162,12 +166,18 @@ public class Client
                 } else{
                     JOptionPane.showMessageDialog(panel, res[2]);
                     onl=res[3];
-                    new ChatBoardUI();
+                    if (chatboard != null) {
+                        chatboard.dispose();
+                    }
+                    chatboard = new ChatBoardUI();
                 }
                 break;
             case "refresh":
                 onl=res[1];
-                new ChatBoardUI();
+                if (chatboard != null) {
+                    chatboard.dispose();
+                }
+                chatboard = new ChatBoardUI();
                 break;
             case "chat":
                 String sender=res[1];
@@ -177,35 +187,6 @@ public class Client
                 }
                 String msg=""+sender+": "+res[2]+"\n";
                 chatBoxList.get(sender).getTextArea().append(msg);
-                break;
-
-            case "info":
-                String fileName = res[2];
-                String from = res[1];
-                String length = res[3];
-                confirm(from,fileName,length);
-                break;
-
-            case "accept":
-                try{
-                    DataInputStream in = new DataInputStream(new FileInputStream(sendingFile));
-                    DataOutputStream out = new DataOutputStream(s.getOutputStream());
-
-                    send("send-file,"+res[1]+","+sendingFile.getName()+","+sendingFile.length());
-
-                    byte[] buffer = new byte[4096];
-                    int count;
-
-                    while ((count=in.read(buffer))>0) {
-                        out.write(buffer,0,count);
-                    }
-
-                    out.flush();
-
-                    in.skip(in.available());
-                } catch (IOException ex){
-                    ex.getMessage();
-                }
                 break;
 
             case "send-file":
@@ -234,23 +215,33 @@ public class Client
         }
     }
 
-    private void receiveFile(String fileName, String fileSize) throws IOException {
+    public void receiveFile(String fileName, String fileSize) throws IOException {
         System.out.println(fileName+fileSize);
 
         // Get input stream
-        DataInputStream in = new DataInputStream(s.getInputStream());
+        DataInputStream in = new DataInputStream(p2pHandlerServer.getSocket().getInputStream());
 
         // Init output stream
-        FileOutputStream out = new FileOutputStream(fileName);
+        FileOutputStream out = new FileOutputStream(fileName, false);
 
-        int remain = Integer.parseInt(fileSize);
+        long remain = Long.parseLong(fileSize);
 
-        byte[] buffer = new byte[4096];
+        byte[] buffer = new byte[BUFFER_SIZE_INT];
 
-        System.out.println("Starting to receive");
+        JDialog receivingDialog = new JDialog(chatbox, "Messenger");
+        JLabel receivingLabel = new JLabel("Receiving file...");
+        receivingDialog.add(receivingLabel);
+        receivingDialog.setSize(100,100);
+        receivingDialog.setVisible(true);
 
         while (remain>0) {
-            int outBufferSize = in.read(buffer,0,Math.min(4096,remain));
+            int outBufferSize = 0;
+            if (remain > BUFFER_SIZE) {
+                outBufferSize = in.read(buffer, 0, BUFFER_SIZE_INT);
+            }
+            else{
+                outBufferSize = in.read(buffer, 0, (int)remain);
+            }
             remain -= outBufferSize;
 
             byte[] tempBuffer = new byte[outBufferSize];
@@ -259,16 +250,36 @@ public class Client
                 tempBuffer[i] = buffer[i];
 
             out.write(tempBuffer);
-
-            System.out.println("The rest size: " + remain);
         }
 
         out.flush();
         out.close();
 
         in.skipBytes(in.available());
-
+        receivingDialog.dispose();
         JOptionPane.showMessageDialog(null,"File saved!");
+    }
+
+    public void startSendingFile(){
+        try{
+            DataInputStream in = new DataInputStream(new FileInputStream(sendingFile));
+            DataOutputStream out = new DataOutputStream(p2pSocket.getOutputStream());
+
+            sendp2p("send-file,"+sendingFile.getName()+","+sendingFile.length());
+
+            byte[] buffer = new byte[4096];
+            int count;
+
+            while ((count=in.read(buffer))>0) {
+                out.write(buffer,0,count);
+            }
+
+            out.flush();
+
+            in.skip(in.available());
+        } catch (IOException ex){
+            ex.getMessage();
+        }
     }
 
     public void confirm(String from, String fileName, String length){
@@ -287,7 +298,7 @@ public class Client
             public void actionPerformed(ActionEvent e) {
                 try {
                     System.out.println("Sending accept signal");
-                    send("accept,"+username+","+from+","+fileName+","+length);
+                    sendp2p("accept-file," + fileName + ","+length);
                 } catch (IOException ex) {
                     ex.printStackTrace();
                 }
@@ -383,6 +394,9 @@ public class Client
     public void
 
     connectSocketp2p(int inpPort) throws IOException{
+        if (p2pSocket != null)
+            return;
+
         while(p2pSocket==null) {
             try {
                 p2pSocket = new Socket("localhost", inpPort);

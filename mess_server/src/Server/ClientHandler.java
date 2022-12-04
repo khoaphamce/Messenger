@@ -12,6 +12,7 @@ public class ClientHandler {
     BufferedReader reader;
     Socket socket;
     Server log;
+    String userName;
     String FILENAME = "user.csv";
     int hostPort;
 
@@ -34,19 +35,33 @@ public class ClientHandler {
             @Override
             public void run() {
                 try {
+                    int reconnectTime = 0;
                     do {
                         String receivedMessage;
                         try {
                             receivedMessage = reader.readLine();
+                            reconnectTime = 0;
                             log.getText().append("Received: " + receivedMessage + '\n');
                             String parseMess[] = receivedMessage.split(",");
                             route(parseMess);
                         } catch (IOException e) {
-                            e.printStackTrace();
+                            if (reconnectTime < 50) {
+                                Thread.currentThread().wait(1);
+                            }
+                            else{
+                                break;
+                            }
                         }
                     } while (true);
+                    System.out.print("Socket closed");
+                    if (log.getOnline().get(userName) != null){
+                        log.getOnline().remove(userName);
+                    }
                 } catch (Exception e) {
                     System.out.print("Socket closed");
+                    if (log.getOnline().get(userName) != null){
+                        log.getOnline().remove(userName);
+                    }
                 }
             }
         });
@@ -117,6 +132,17 @@ public class ClientHandler {
                         writer.write("login,true,Logged in successfully!,"+onlStr);
                         writer.newLine();
                         writer.flush();
+
+                        String onlList = getOnl();
+                        HashMap<String, ClientHandler> onl = log.getOnline();
+
+                        this.userName = username;
+
+                        for (String i: onl.keySet()){
+                            log.getText().append("Refreshing: " + i + "\n");
+                            onl.get(i).send("refresh,"+onlList);
+                        }
+
                         return;
                     }
                 }
@@ -219,5 +245,12 @@ public class ClientHandler {
         writer.write(sentMessage);
         writer.newLine();
         writer.flush();
+    }
+
+    protected void finalize()
+    {
+        if (log.getOnline().get(this.userName) != null){
+            log.getOnline().remove(this.userName);
+        }
     }
 }
