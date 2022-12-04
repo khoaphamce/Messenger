@@ -64,15 +64,18 @@ public class Client
         Thread t = new Thread(new Runnable() {
             @Override
             public void run() {
+                int reconnectTime = 0;
                 try {
                     do {
                         receivedMessage = br.readLine();
+                        reconnectTime = 0;
                         res = parseString(receivedMessage);
                         System.out.println("Message receive: "+res[0]);
                         route();
                     } while (true);
-                } catch (Exception e) {
-                    e.printStackTrace();
+                }
+                catch (Exception e) {
+
                 }
             }
         });
