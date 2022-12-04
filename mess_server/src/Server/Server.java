@@ -13,7 +13,7 @@ import java.util.HashMap;
 import java.io.IOException;  
 
 
-public class    Server {
+public class Server {
     JTextArea text = new JTextArea(100, 50);
     JScrollPane log;
     JPanel notify = new JPanel();
@@ -72,15 +72,13 @@ public class    Server {
 
             } while (true);
         } catch (IOException e) {
-
-            // text.append("There are some error\n");
-
+            text.append("No user found\n");
         } finally {
             try {
                 writer.close();
                 reader.close();
             } catch (IOException e) {
-                e.printStackTrace();
+                // e.printStackTrace();
             }
         }
     }

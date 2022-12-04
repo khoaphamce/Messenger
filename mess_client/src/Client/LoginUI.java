@@ -19,6 +19,7 @@ public class LoginUI extends JFrame implements ActionListener {
     public LoginUI() {
         try {
             Client.getObject().connect();
+            Client.getObject().initp2p();
         } catch (IOException e) {
             e.printStackTrace();
         }
@@ -51,7 +52,7 @@ public class LoginUI extends JFrame implements ActionListener {
             text = "login," + userText + ',' + pwdText;
             Client.getObject().setUsername(userText);
         } else {
-            text = "register," + userText + ',' + pwdText;
+            text = "reg," + userText + ',' + pwdText;
         }
 
         try {
@@ -92,4 +93,5 @@ public class LoginUI extends JFrame implements ActionListener {
 
         return button;
     }
+
 }

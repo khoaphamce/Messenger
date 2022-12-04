@@ -1,5 +1,4 @@
 package Client;
-
 import javax.swing.*;
 import javax.swing.border.EmptyBorder;
 import java.awt.*;
@@ -20,7 +19,7 @@ public class ChatBoardUI extends JFrame implements ActionListener {
         setLayout(new BorderLayout());
         setTitle("Chat board");
 
-        setPreferredSize(new Dimension(400, 350));
+        setPreferredSize(new Dimension(500, 400));
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 
         JLabel name = new JLabel("Hi, "+ Client.getObject().getUsername());
@@ -102,12 +101,21 @@ public class ChatBoardUI extends JFrame implements ActionListener {
     }
 
     MouseListener mouseListener = new MouseAdapter() {
-//        public void mouseClicked(MouseEvent e) {
-//            if (e.getClickCount() == 2) {
-//                String name = (String) online.getSelectedValue();
-//                ChatBoxUI chatbox = new ChatBoxUI(name);
-//                Client.getObject().getChatBox().put(name,chatbox);
-//            }
-//        }
+        public void mouseClicked(MouseEvent e) {
+            if (e.getClickCount() == 2) {
+                String name = (String) online.getSelectedValue();
+                ChatBoxUI chatbox = new ChatBoxUI(name);
+                Client.getObject().chatbox = chatbox;
+
+                try {
+                    Client.getObject().connectTo(name);
+                }
+                catch (IOException ex){
+                    System.out.println("Can not find port lol");
+                }
+
+                Client.getObject().getChatBox().put(name,chatbox);
+            }
+        }
     };
 }
