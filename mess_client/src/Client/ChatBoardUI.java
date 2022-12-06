@@ -36,6 +36,8 @@ public class ChatBoardUI extends JFrame implements ActionListener {
         refresh.addActionListener(this);
 
         logout = new JButton("Logout");
+        setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE); // close -> exit program
+        logout.addActionListener(this);
         logout.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent e) {
                 try {
@@ -43,6 +45,8 @@ public class ChatBoardUI extends JFrame implements ActionListener {
                 } catch (IOException ex) {
                     ex.printStackTrace();
                 }
+                model.removeElement(Client.getObject().getUsername());
+
                 dispose();
             }
         });
@@ -82,12 +86,16 @@ public class ChatBoardUI extends JFrame implements ActionListener {
         for(String user : onl){
             model.addElement(user);
         }
+        model.removeElement(Client.getObject().getUsername());
         online = new JList( model );
         online.addMouseListener(mouseListener);
         JScrollPane s = new JScrollPane(online);
         return s;
     }
-
+//    public boolean checking(){
+//        JFrame window = new JFrame();
+//        window.
+//    }
     @Override
     public void actionPerformed(ActionEvent e) {
         if (e.getSource() == refresh){
