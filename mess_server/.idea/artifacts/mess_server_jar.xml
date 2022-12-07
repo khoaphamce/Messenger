@@ -1,0 +1,8 @@
+<component name="ArtifactManager">
+  <artifact type="jar" name="mess_server:jar">
+    <output-path>$PROJECT_DIR$/out/artifacts/mess_server_jar</output-path>
+    <root id="archive" name="mess_server.jar">
+      <element id="module-output" name="mess_server" />
+    </root>
+  </artifact>
+</component>
